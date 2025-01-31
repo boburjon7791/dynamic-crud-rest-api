@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: dynamic-crud-rest-api
+  liquibase:
+    change-log: db/changelog/db.changelog-master.xml
+  profiles:
+    active: local
+jwt:
+  access-token:
+    key: afesgfbaefaeYGTFVGHFJJJSSSSSSAAAACCVVAAFATYF4641
+    expiration: 3000000000
+  refresh-token:
+    key: aekjshueaejk6546865466aFAFAEHJBHGDAWHJDGYAFHAHJDAUYFGAJ
+    expiration: 90000000000000
