@@ -33,11 +33,6 @@ public class UserService implements BaseService<UserRequest, User, Long, UserRes
     private final Class<User> classType=User.class;
 
     @Override
-    public List<String> notUpdatableFields() {
-        return List.of(User._deleted, User._id, User._createdAt, User._createdBy, User._updatedAt, User._updatedBy, User._permissions, User._role, User._password);
-    }
-
-    @Override
     public String getClassName() {
         return User.class.getSimpleName();
     }

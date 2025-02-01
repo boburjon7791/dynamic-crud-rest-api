@@ -9,7 +9,6 @@ import com.example.dynamic_crud_rest_api.base.model.response.ApiResponse;
 import com.example.dynamic_crud_rest_api.base.model.response.PaginationDetails;
 import com.example.dynamic_crud_rest_api.base.repository.BaseRepository;
 import com.example.dynamic_crud_rest_api.base.specification.BaseSpecification;
-import com.example.dynamic_crud_rest_api.base.specification.DeleteSpecification;
 import com.example.dynamic_crud_rest_api.base.specification.UpdateSpecification;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Page;
@@ -29,7 +28,6 @@ public interface BaseService<REQUEST, ENTITY extends BaseSuperEntity, ID extends
     BaseSpecification<ENTITY, ID, FILTER_REQUEST> getSpecification();
     EntityManager getEntityManager();
     Class<ENTITY> getClassType();
-    List<String> notUpdatableFields();
 
     /*
     * you need to override this method and return ENTITY.class.getSimpleName() method
@@ -109,13 +107,9 @@ public interface BaseService<REQUEST, ENTITY extends BaseSuperEntity, ID extends
 
     @Transactional
     default ApiResponse<Void> deleteById(ID id){
-        /*ENTITY entity = entity(id);
+        ENTITY entity = entity(id);
         entity.setDeleted(true);
-        getRepository().save(entity);*/
-        DeleteSpecification<ENTITY> deleteSpecification = (criteriaBuilder, criteriaDelete, root) -> {
-            criteriaDelete.where(criteriaBuilder.equal(root.get(BaseSuperEntity._id), id));
-        };
-        getRepository().executeDelete(deleteSpecification, getClassType(), getEntityManager());
+        getRepository().save(entity);
         return ApiResponse.ok();
     }
 

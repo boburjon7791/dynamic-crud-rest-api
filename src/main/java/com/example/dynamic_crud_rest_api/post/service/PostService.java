@@ -14,8 +14,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Getter
 @Service
 @RequiredArgsConstructor
@@ -28,11 +26,6 @@ public class PostService implements BaseService<PostRequest, Post, Long, PostRes
     @PersistenceContext
     private final EntityManager entityManager;
     private final Class<Post> classType= Post.class;
-
-    @Override
-    public List<String> notUpdatableFields() {
-        return List.of();
-    }
 
     @Override
     public String getClassName() {
