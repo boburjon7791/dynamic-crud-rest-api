@@ -2,7 +2,6 @@ package com.example.dynamic_crud_rest_api;
 
 import com.example.dynamic_crud_rest_api.base.config.security.CustomUserDetails;
 import com.example.dynamic_crud_rest_api.base.config.security.CustomUserDetailsService;
-import com.example.dynamic_crud_rest_api.base.specification.DeleteSpecification;
 import com.example.dynamic_crud_rest_api.base.specification.UpdateSpecification;
 import com.example.dynamic_crud_rest_api.post.model.dto.request.PostRequest;
 import com.example.dynamic_crud_rest_api.post.model.entity.Post;
