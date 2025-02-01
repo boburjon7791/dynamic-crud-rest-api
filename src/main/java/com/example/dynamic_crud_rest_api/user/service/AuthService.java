@@ -5,7 +5,6 @@ import com.example.dynamic_crud_rest_api.base.config.security.JwtProvider;
 import com.example.dynamic_crud_rest_api.base.config.security.TokenDTO;
 import com.example.dynamic_crud_rest_api.base.exception.ApiException;
 import com.example.dynamic_crud_rest_api.base.model.response.ApiResponse;
-import com.example.dynamic_crud_rest_api.base.model.response.ResultCodes;
 import com.example.dynamic_crud_rest_api.user.model.dto.request.LoginRequest;
 import com.example.dynamic_crud_rest_api.user.model.dto.response.LoginResponse;
 import com.example.dynamic_crud_rest_api.user.model.dto.response.UserResponse;

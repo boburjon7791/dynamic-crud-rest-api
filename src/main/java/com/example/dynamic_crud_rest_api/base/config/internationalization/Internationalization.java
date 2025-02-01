@@ -17,7 +17,7 @@ public class Internationalization implements WebMvcConfigurer {
     @Primary
     public LocaleResolver localeResolver(){
         CookieLocaleResolver localeResolver = new CookieLocaleResolver("lang");
-        localeResolver.setDefaultLocale(Locale.forLanguageTag("ru"));
+        localeResolver.setDefaultLocale(Locale.forLanguageTag("uz"));
         return localeResolver;
     }
 

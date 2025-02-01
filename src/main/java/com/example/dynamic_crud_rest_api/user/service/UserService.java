@@ -57,6 +57,19 @@ public class UserService implements BaseService<UserRequest, User, Long, UserRes
     }
 
     @Override
+    public UserRequest cleanUpdateModelObject(UserRequest userRequest) {
+        return new UserRequest(
+                userRequest.firstName(),
+                userRequest.lastName(),
+                userRequest.fatherName(),
+                userRequest.phone(),
+                null,
+                null,
+                null
+        );
+    }
+
+    @Override
     public ApiResponse<UserResponse> findById(Long id) {
         User user = entity(id);
         UserResponse userResponse = getMapper().toResponseWithPermissions(user);

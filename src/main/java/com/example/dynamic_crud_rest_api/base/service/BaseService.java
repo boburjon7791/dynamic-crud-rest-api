@@ -1,7 +1,6 @@
 package com.example.dynamic_crud_rest_api.base.service;
 
 import com.example.dynamic_crud_rest_api.base.config.internationalization.Localization;
-import com.example.dynamic_crud_rest_api.base.config.security.CustomUserDetails;
 import com.example.dynamic_crud_rest_api.base.exception.ApiException;
 import com.example.dynamic_crud_rest_api.base.model.entity.BaseSuperEntity;
 import com.example.dynamic_crud_rest_api.base.model.filter_request.BaseFilterRequest;
@@ -10,21 +9,15 @@ import com.example.dynamic_crud_rest_api.base.model.response.ApiResponse;
 import com.example.dynamic_crud_rest_api.base.model.response.PaginationDetails;
 import com.example.dynamic_crud_rest_api.base.repository.BaseRepository;
 import com.example.dynamic_crud_rest_api.base.specification.BaseSpecification;
-import com.example.dynamic_crud_rest_api.base.utils.BaseUtils;
+import com.example.dynamic_crud_rest_api.base.specification.DeleteSpecification;
+import com.example.dynamic_crud_rest_api.base.specification.UpdateSpecification;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaUpdate;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
 
 public interface BaseService<REQUEST, ENTITY extends BaseSuperEntity, ID extends Serializable, RESPONSE, FILTER_REQUEST extends BaseFilterRequest> {
     /*
@@ -48,6 +41,16 @@ public interface BaseService<REQUEST, ENTITY extends BaseSuperEntity, ID extends
     * */
     void checkUniqueWhileCreating(REQUEST request);
     void checkUniqueWhileUpdating(REQUEST request, ID id);
+
+    /*
+    * if you don't want to clean request object, you need to return request object in this method's body like this:
+    * public REQUEST cleanUpdateModelObject(REQUEST request){
+    *     return request;
+    * }
+    *
+    * if you want clean object, you need to deep copy then return copied object
+    * */
+    REQUEST cleanUpdateModelObject(REQUEST request);
 
     /*
     * concreate methods
@@ -76,60 +79,16 @@ public interface BaseService<REQUEST, ENTITY extends BaseSuperEntity, ID extends
     @Transactional
     default ApiResponse<RESPONSE> update(REQUEST request, ID id){
         checkUniqueWhileUpdating(request, id);
-
-        // create criteriaBuilder
-        CriteriaBuilder criteriaBuilder = getEntityManager().getCriteriaBuilder();
-
-        // create criteriaUpdate with criteriaBuilder
-        CriteriaUpdate<ENTITY> criteriaUpdate = criteriaBuilder.createCriteriaUpdate(getClassType());
-
-        // create root with classType
-        Root<ENTITY> root = criteriaUpdate.from(getClassType());
-
-        // map for collecting updating fields
-        Map<String, Object> updatingFields=new HashMap<>();
-
-        OUTER_LOOP:for (Field outerField : BaseUtils.getAllFields(request.getClass())) {
-            outerField.setAccessible(true); // enable accessibility for private fields
-            Object object; // get outerField value from request
-            try {
-                object = outerField.get(request);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-
-            if (notUpdatableFields().contains(outerField.getName())) {
-                continue OUTER_LOOP;
-            }
-
-            Set<String> notDeletingFields = Set.of(BaseSuperEntity._id, BaseSuperEntity._createdBy, BaseSuperEntity._createdAt, BaseSuperEntity._updatedBy, BaseSuperEntity._updatedAt, BaseSuperEntity._deleted);
-            if (notDeletingFields.contains(outerField.getName())) {
-                continue OUTER_LOOP;
-            }
-
-            // check null and if instance string check not blank
-            if (object!=null && (!(object instanceof String) || !((String)object).isBlank())) {
-                updatingFields.put(outerField.getName(), object);
-            }
-        }
-
-        CustomUserDetails currentAuthenticatedUser = BaseUtils.currentAuthenticatedUser();
-        updatingFields.put(BaseSuperEntity._updatedBy, currentAuthenticatedUser.getId());
-        updatingFields.put(BaseSuperEntity._updatedAt, LocalDateTime.now());
-
-        // iterate and set updating fields to criteriaUpdate
-        updatingFields.forEach((field, value) -> criteriaUpdate.set(root.get(field), value));
-
-        // where clause
-        Predicate[] predicates=new Predicate[]{
-                criteriaBuilder.and(criteriaBuilder.equal(root.get(BaseSuperEntity._id), Objects.requireNonNull(id, "id can not be null")),
-                criteriaBuilder.equal(root.get(BaseSuperEntity._deleted), false))
+        request=cleanUpdateModelObject(request);
+        UpdateSpecification<ENTITY> updateSpecification=(criteriaBuilder, criteriaUpdate, root) -> {
+            criteriaUpdate.where(criteriaBuilder.equal(root.get(BaseSuperEntity._id), id));
         };
-        criteriaUpdate.where(predicates);
-
-        // execute dynamic update query
-        getEntityManager().createQuery(criteriaUpdate).executeUpdate();
-        return ApiResponse.ok();
+        if (getRepository().executeUpdate(updateSpecification, getClassType(), request, getEntityManager())>0) {
+            return ApiResponse.ok();
+        }
+        String className = getLocalization().getMessage(getClassName());
+        String notFound = getLocalization().getMessage("not_found");
+        throw new ApiException(className+" "+notFound);
     }
 
     default ApiResponse<RESPONSE> findById(ID id){
@@ -148,10 +107,15 @@ public interface BaseService<REQUEST, ENTITY extends BaseSuperEntity, ID extends
         return ApiResponse.ok(page.getContent(), PaginationDetails.of(page));
     }
 
+    @Transactional
     default ApiResponse<Void> deleteById(ID id){
-        ENTITY entity = entity(id);
+        /*ENTITY entity = entity(id);
         entity.setDeleted(true);
-        getRepository().save(entity);
+        getRepository().save(entity);*/
+        DeleteSpecification<ENTITY> deleteSpecification = (criteriaBuilder, criteriaDelete, root) -> {
+            criteriaDelete.where(criteriaBuilder.equal(root.get(BaseSuperEntity._id), id));
+        };
+        getRepository().executeDelete(deleteSpecification, getClassType(), getEntityManager());
         return ApiResponse.ok();
     }
 

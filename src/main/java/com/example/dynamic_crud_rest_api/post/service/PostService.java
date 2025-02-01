@@ -8,7 +8,6 @@ import com.example.dynamic_crud_rest_api.post.model.entity.Post;
 import com.example.dynamic_crud_rest_api.post.model.filter_request.PostFilterRequest;
 import com.example.dynamic_crud_rest_api.post.model.mapper.PostMapper;
 import com.example.dynamic_crud_rest_api.post.repository.PostRepository;
-import com.example.dynamic_crud_rest_api.post.specification.PostSpecification;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.Getter;
@@ -23,7 +22,7 @@ import java.util.List;
 public class PostService implements BaseService<PostRequest, Post, Long, PostResponse, PostFilterRequest> {
     private final PostRepository repository;
     private final PostMapper mapper;
-    private final PostSpecification specification;
+    private final com.example.dynamic_crud_rest_api.post.specification.PostSpecification specification;
     private final Localization localization;
 
     @PersistenceContext
@@ -46,7 +45,12 @@ public class PostService implements BaseService<PostRequest, Post, Long, PostRes
     }
 
     @Override
-    public void checkUniqueWhileUpdating(PostRequest postRequest, Long aLong) {
+    public void checkUniqueWhileUpdating(PostRequest postRequest, Long id) {
 
+    }
+
+    @Override
+    public PostRequest cleanUpdateModelObject(PostRequest postRequest) {
+        return postRequest;
     }
 }
