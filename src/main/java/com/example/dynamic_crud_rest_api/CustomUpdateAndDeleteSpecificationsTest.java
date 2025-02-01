@@ -33,11 +33,6 @@ public class CustomUpdateAndDeleteSpecificationsTest {
         };
 //        postRepository.executeUpdate(updateSpecification, Post.class, entityManager);
 
-        DeleteSpecification<Post> deleteSpecification=(criteriaBuilder, criteriaDelete, root) -> {
-            criteriaBuilder.equal(root.get("id"), 5);
-        };
-//        postRepository.executeDelete(deleteSpecification, Post.class, entityManager);
-
         SecurityContextHolder.clearContext();
     }
 }
