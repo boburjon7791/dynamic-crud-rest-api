@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Configuration
 @RequiredArgsConstructor
-public class CustomUpdateAndDeleteSpecificationsTest {
+public class CustomUpdateSpecificationsTest {
     private final EntityManager entityManager;
     private final PostRepository postRepository;
     private final CustomUserDetailsService customUserDetailsService;

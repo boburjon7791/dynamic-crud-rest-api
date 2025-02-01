@@ -9,11 +9,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @RequiredArgsConstructor
 public class DynamicCrudRestApiApplication {
 
-	private final CustomUpdateAndDeleteSpecificationsTest customUpdateAndDeleteSpecificationsTest;
+	private final CustomUpdateSpecificationsTest customUpdateSpecificationsTest;
 
 	@PostConstruct
 	public void init() {
-		customUpdateAndDeleteSpecificationsTest.test();
+		customUpdateSpecificationsTest.test();
 	}
 
 	public static void main(String[] args) {
