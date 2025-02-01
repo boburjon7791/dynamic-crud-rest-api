@@ -8,9 +8,4 @@ import jakarta.persistence.criteria.Root;
 @FunctionalInterface
 public interface UpdateSpecification<T extends BaseSuperEntity> {
     void apply(CriteriaBuilder criteriaBuilder, CriteriaUpdate<?> criteriaUpdate, Root<T> root);
-
-    // factory metod
-    static <T extends BaseSuperEntity> UpdateSpecification<T> of() {
-        return  (criteriaBuilder, criteriaUpdate, root) -> {};
-    }
 }
