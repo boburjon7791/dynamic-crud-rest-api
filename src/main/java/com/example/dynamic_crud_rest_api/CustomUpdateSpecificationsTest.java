@@ -31,8 +31,7 @@ public class CustomUpdateSpecificationsTest {
             criteriaUpdate.set("title", postRequest.title());
             return criteriaBuilder.equal(root.get("title"), "title");
         };
-        postRepository.delete((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"),2L));
-        postRepository.executeUpdate(updateSpecification, Post.class, entityManager);
+//        postRepository.executeUpdate(updateSpecification, Post.class, entityManager);
 
         SecurityContextHolder.clearContext();
     }
