@@ -28,7 +28,7 @@ public interface UpdateSpecificationExecutor<T extends BaseSuperEntity> {
             BaseSuperEntity._updatedBy,
             BaseSuperEntity._updatedAt
     );
-    final Set<String> ANNOTATIONS=Set.of(
+    Set<String> ANNOTATIONS=Set.of(
             ManyToOne.class.getSimpleName(),
             OneToMany.class.getSimpleName(),
             OneToOne.class.getSimpleName(),
