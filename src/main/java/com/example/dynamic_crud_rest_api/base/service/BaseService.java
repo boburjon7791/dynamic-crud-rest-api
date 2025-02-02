@@ -78,9 +78,7 @@ public interface BaseService<REQUEST, ENTITY extends BaseSuperEntity, ID extends
     default ApiResponse<RESPONSE> update(REQUEST request, ID id){
         checkUniqueWhileUpdating(request, id);
         request=cleanUpdateModelObject(request);
-        UpdateSpecification<ENTITY> updateSpecification=(criteriaBuilder, criteriaUpdate, root) -> {
-            criteriaUpdate.where(criteriaBuilder.equal(root.get(BaseSuperEntity._id), id));
-        };
+        UpdateSpecification<ENTITY> updateSpecification=(criteriaBuilder, criteriaUpdate, root) -> criteriaBuilder.equal(root.get(BaseSuperEntity._id), id);
         if (getRepository().executeUpdate(updateSpecification, getClassType(), request, getEntityManager())>0) {
             return ApiResponse.ok();
         }

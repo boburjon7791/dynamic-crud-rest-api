@@ -6,6 +6,7 @@ import com.example.dynamic_crud_rest_api.base.utils.BaseUtils;
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.springframework.data.repository.NoRepositoryBean;
 
@@ -27,6 +28,15 @@ public interface UpdateSpecificationExecutor<T extends BaseSuperEntity> {
             BaseSuperEntity._updatedBy,
             BaseSuperEntity._updatedAt
     );
+    final Set<String> ANNOTATIONS=Set.of(
+            ManyToOne.class.getSimpleName(),
+            OneToMany.class.getSimpleName(),
+            OneToOne.class.getSimpleName(),
+            ManyToMany.class.getSimpleName(),
+            ElementCollection.class.getSimpleName(),
+            JoinTable.class.getSimpleName(),
+            JoinColumn.class.getSimpleName()
+    );
 
     default int executeUpdate(UpdateSpecification<T> spec, Class<T> classType, EntityManager entityManager){
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
@@ -34,7 +44,8 @@ public interface UpdateSpecificationExecutor<T extends BaseSuperEntity> {
         Root<T> root = criteriaUpdate.from(classType);
 
         // lampba expression da berilgan custom query ni yaratish
-        spec.apply(criteriaBuilder, criteriaUpdate, root);
+        Predicate predicate = spec.apply(criteriaBuilder, criteriaUpdate, root);
+        criteriaUpdate.where(predicate);
 
         addAutomaticallyUpdateFields(criteriaUpdate, root);
 
@@ -47,7 +58,8 @@ public interface UpdateSpecificationExecutor<T extends BaseSuperEntity> {
         Root<T> root = criteriaUpdate.from(classType);
 
         // lampba expression da berilgan custom query ni yaratish
-        spec.apply(criteriaBuilder, criteriaUpdate, root);
+        Predicate predicate = spec.apply(criteriaBuilder, criteriaUpdate, root);
+        criteriaUpdate.where(predicate);
 
         AtomicInteger countOfUpdatingFields=new AtomicInteger(0);
         checkAndSetUpdatingFields(criteriaUpdate, root, updateModel, classType, countOfUpdatingFields);
@@ -63,15 +75,6 @@ public interface UpdateSpecificationExecutor<T extends BaseSuperEntity> {
 
     // check and set updating fields
     private static <T> void checkAndSetUpdatingFields(CriteriaUpdate<T> criteriaUpdate, Root<T> root, Object updateModel, Class<T> classType, AtomicInteger countOfUpdatingFields){
-        final Set<String> ANNOTATIONS=Set.of(
-                ManyToOne.class.getSimpleName(),
-                OneToMany.class.getSimpleName(),
-                OneToOne.class.getSimpleName(),
-                ManyToMany.class.getSimpleName(),
-                ElementCollection.class.getSimpleName(),
-                JoinTable.class.getSimpleName(),
-                JoinColumn.class.getSimpleName()
-        );
         Set<String> relationObjects = Arrays.stream(classType.getDeclaredFields())
                 .peek(field -> field.setAccessible(true))
                 .filter(field -> Arrays.stream(field.getAnnotations())

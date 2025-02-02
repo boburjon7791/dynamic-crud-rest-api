@@ -9,6 +9,7 @@ import com.example.dynamic_crud_rest_api.post.repository.PostRepository;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,10 +28,11 @@ public class CustomUpdateSpecificationsTest {
 
         PostRequest postRequest = new PostRequest("test", "aaaaa");
         UpdateSpecification<Post> updateSpecification = (criteriaBuilder, criteriaUpdate, root) -> {
-            criteriaBuilder.equal(root.get("title"), "title");
             criteriaUpdate.set("title", postRequest.title());
+            return criteriaBuilder.equal(root.get("title"), "title");
         };
-//        postRepository.executeUpdate(updateSpecification, Post.class, entityManager);
+        postRepository.delete((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"),2L));
+        postRepository.executeUpdate(updateSpecification, Post.class, entityManager);
 
         SecurityContextHolder.clearContext();
     }
