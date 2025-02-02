@@ -46,7 +46,7 @@ public interface BaseService<REQUEST, ENTITY extends BaseSuperEntity, ID extends
     *     return request;
     * }
     *
-    * if you want clean object, you need to deep copy then return copied object
+    * if you want clean object, you need to deep or shallow copy then return copied object
     * */
     REQUEST cleanUpdateModelObject(REQUEST request);
 
